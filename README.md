@@ -53,6 +53,7 @@ On any Appointments page tap **⏰ Set an alarm**, choose the date and time and 
 
 - **T (Text)** lets you type with the keyboard. Tap a line to type on it (Enter jumps to the next line), or tap an empty spot to drop a text box there.
 - **Select** lets you draw a loop around anything on the page (handwriting, typed text on the lines or text boxes), then drag it somewhere else. The little bar lets you delete or copy what you picked.
+- **Scribble delete** sensitivity is on the toolbar button and in settings. Off, Strict, Normal or Easy. Pick Strict if it ever catches your writing.
 - **Tap a tick box** with the pen or your finger to tick or untick it.
 - **Swipe across a ticked item** (a quick sideways line with the pen, or a finger swipe) and it asks whether to delete that row or keep it. Deleting moves everything under it up.
 - Scrolling down a page hides every bar so the page fills the whole screen, with a small set of pen tools on the side. Scroll up a little, or tap **⌃** on the side tools, to bring the menus back.

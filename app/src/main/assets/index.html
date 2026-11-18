@@ -218,6 +218,13 @@ h3{font-family:Fraunces,serif;font-size:24px;margin:34px 0 12px}
 #lookPop .lrow{display:flex;flex-wrap:wrap;gap:7px}
 #lookPop .lrow button{width:44px;height:40px;border-radius:12px;border:2px solid var(--line);font-size:10px;font-weight:800;display:grid;place-items:end center;padding-bottom:2px;overflow:hidden}
 #lookPop .lrow button.on{box-shadow:0 0 0 3px var(--ink)}
+#scribPop{position:fixed;z-index:8;display:none;flex-direction:column;gap:6px;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:12px;box-shadow:0 12px 34px rgba(40,30,20,.22);width:min(340px,92vw)}
+#scribPop.on{display:flex}
+#scribPop h5{margin:0 0 4px 4px;font-size:16px;font-family:Fraunces,serif}
+#scribPop button{text-align:left;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;flex-direction:column;gap:2px}
+#scribPop button b{font-size:15px}
+#scribPop button span{font-size:13px;color:var(--muted);line-height:1.3}
+#scribPop button.on{border-color:var(--accent);background:var(--accs)}
 #chActions{max-width:1000px;margin:0 auto 18px;display:none;gap:10px;flex-wrap:wrap}
 .sheetView{position:fixed;inset:0;background:var(--bg);z-index:9;overflow:auto;display:none}
 .sheetView.on{display:block}
@@ -475,6 +482,8 @@ input{-webkit-user-select:text;user-select:text}
         <h3>How you write</h3>
         <p class="empty" style="margin:0 0 10px">Auto uses typing on a phone and the pen on a tablet.</p>
         <div class="optRow modeRow" id="modeRow"></div>
+        <p class="empty" style="margin:14px 0 8px">Scribble to delete. Pick Strict if it sometimes rubs out your writing.</p>
+        <div class="optRow modeRow" id="scribRow"></div>
         <h3>Period tracker</h3>
         <p class="empty" style="margin:0 0 10px">Adds a Period tab to each day and shows your cycle on the calendar.</p>
         <div class="optRow modeRow" id="periodRow"></div>
@@ -570,6 +579,7 @@ input{-webkit-user-select:text;user-select:text}
 
 <div class="modal" id="modal"><div class="box"><h4 id="mH"></h4><p id="mP"></p><div class="row"><button class="pill" id="mNo">Cancel</button><button class="pill btnDanger" id="mYes">OK</button></div></div></div>
 <div id="palette"></div>
+<div id="scribPop"></div>
 <div id="lookPop">
   <h5>Colours for this page</h5>
   <p>Page</p><div class="lrow" id="lpPaper"></div>
@@ -2235,7 +2245,7 @@ const COLORS = ['#1f2a44','#000000','#6b6b6b','#7a4a2a','#d32f2f','#e91e63','#f4
 const SIZES = [2.2, 3.6, 6];
 let tool = lsGet('dl-tool', 'pen'), color = lsGet('dl-color', COLORS[0]), size = lsGet('dl-size', SIZES[1]);
 let penOnly = lsGet('dl-penonly', false), penOnlyChosen = lsGet('dl-penonly-chosen', false);
-let scribble = lsGet('dl-scribble', true);
+let scribble = lsGet('dl-scribble-level', lsGet('dl-scribble', true) ? 'normal' : 'off');   // off, strict, normal or easy
 let recentColors = lsGet('dl-recent-colors', ['#1f2a44','#e91e63','#6a1b9a','#1565c0']);
 function pickColor(c){
   color = c; if (tool === 'eraser') tool = 'pen'; lsSet('dl-color', c);
@@ -2271,10 +2281,31 @@ function syncTools(){
   const uiCol = (isDarkMode() && (color === '#1f2a44' || color === '#000000')) ? '#ece8e1' : color;
   document.querySelectorAll('.sz').forEach(b => { b.classList.toggle('on', +b.dataset.s === size); b.querySelector('i').style.background = uiCol; });
   $('palm').classList.toggle('on', penOnly); $('palm').querySelector('span').textContent = penOnly ? 'Pen only: on' : 'Pen only: off';
-  $('scrib').classList.toggle('on', scribble); $('scrib').querySelector('span').textContent = scribble ? 'Scribble delete: on' : 'Scribble delete: off';
+  $('scrib').classList.toggle('on', scribble !== 'off'); $('scrib').querySelector('span').textContent = 'Scribble delete: ' + SCRIB_NAMES[scribble];
+  if ($('scribRow')) renderScribRow();
 }
 $('palm').onclick = () => { penOnly = !penOnly; penOnlyChosen = true; lsSet('dl-penonly', penOnly); lsSet('dl-penonly-chosen', true); syncTools(); };
-$('scrib').onclick = () => { scribble = !scribble; lsSet('dl-scribble', scribble); syncTools(); };
+const SCRIB_NAMES = { off: 'off', strict: 'strict', normal: 'normal', easy: 'easy' };
+function setScribble(v){ scribble = v; lsSet('dl-scribble-level', v); syncTools(); }
+$('scrib').onclick = e => {
+  e.stopPropagation();
+  const p = $('scribPop'); p.innerHTML = '<h5>Scribble to delete</h5>' + [
+    ['off', 'Off', 'Scribbling never deletes anything'],
+    ['strict', 'Strict', 'Only a long, fast back-and-forth scribble deletes. Best if it catches your writing'],
+    ['normal', 'Normal', 'A clear back-and-forth scribble over writing deletes it'],
+    ['easy', 'Easy', 'Deletes with a shorter scribble, but sometimes catches writing']
+  ].map(([v, n, d]) => `<button data-v="${v}" class="${scribble === v ? 'on' : ''}"><b>${n}</b><span>${d}</span></button>`).join('');
+  p.querySelectorAll('button').forEach(b => b.onclick = ev => { ev.stopPropagation(); setScribble(b.dataset.v); p.classList.remove('on'); });
+  p.classList.add('on');
+  const r = $('scrib').getBoundingClientRect(), pw = p.offsetWidth;
+  p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width / 2 - pw / 2)) + 'px';
+  p.style.top = (r.bottom + 10) + 'px';
+};
+document.addEventListener('click', e => { if (!$('scribPop').contains(e.target)) $('scribPop').classList.remove('on'); });
+function renderScribRow(){
+  $('scribRow').innerHTML = ['off','strict','normal','easy'].map(v => `<button class="pp${scribble === v ? ' on' : ''}" data-v="${v}">${v[0].toUpperCase() + v.slice(1)}</button>`).join('');
+  $('scribRow').querySelectorAll('.pp').forEach(b => b.onclick = () => setScribble(b.dataset.v));
+}
 syncTools();
 
 const snap = () => ({ strokes: strokes.slice(), extra: { ...cur.extra }, tpl: cur.tpl, data: JSON.parse(JSON.stringify(cur.data)) });
@@ -2381,8 +2412,8 @@ function endPointer(e){
   if (a.stroke.t === 'pen' && dur < 500 && bb.w > 120 && bb.h < 30){
     if (swipeAt([a.stroke.p[0], a.stroke.p[1]], a.stroke)) return;
   }
-  if (scribble && a.stroke.t === 'pen'){
-    const hit = scribbleTargets(a.stroke);
+  if (scribble !== 'off' && a.stroke.t === 'pen'){
+    const hit = scribbleTargets(a.stroke, dur);
     if (hit){
       pushUndo(); strokes = strokes.filter(s => !hit.has(s)); render(); markDirty();
       toast(hit.size === 1 ? 'Scribbled out 1 stroke' : `Scribbled out ${hit.size} strokes`, true);
@@ -2643,12 +2674,21 @@ function eraseAt([x, y]){
 }
 
 /* ---------------- scribble to delete ----------------
-   A scribble is a stroke that goes back and forth across itself at least 5 times.
-   If it covers existing writing, that writing is deleted and the scribble is not kept.
-   If it covers nothing, it stays as normal ink. */
-function legCount(vals, span){
+   A scribble is a stroke that goes back and forth sideways across itself
+   several times. If it covers existing writing, that writing is deleted and
+   the scribble is not kept. If it covers nothing, it stays as normal ink.
+   Normal and Strict only count sideways back-and-forth, because ordinary
+   handwriting goes up and down a lot (m, w, n) but rarely sideways over
+   itself, and they also need the scribble to be dense and to mostly cover
+   the writing it deletes. */
+const SCRIB_RULES = {
+  easy:   { legs: 5, big: 0.40, sideways: false, density: 0,   cover: 0.5, maxMs: Infinity },
+  normal: { legs: 5, big: 0.50, sideways: true,  density: 3.5, cover: 0.6, maxMs: 3000 },
+  strict: { legs: 7, big: 0.60, sideways: true,  density: 5,   cover: 0.7, maxMs: 2000 }
+};
+function legCount(vals, span, bigFrac = 0.4){
   if (span < 14) return 0;
-  const hys = Math.max(3, span * 0.12), big = span * 0.4;
+  const hys = Math.max(3, span * 0.12), big = span * bigFrac;
   let dir = 0, ext = vals[0], last = vals[0], count = 0;
   for (const v of vals){
     if (dir === 0){ if (Math.abs(v - last) > hys){ dir = Math.sign(v - last); ext = v; } continue; }
@@ -2658,18 +2698,22 @@ function legCount(vals, span){
   if (dir !== 0 && Math.abs(ext - last) >= big) count++;
   return count;
 }
-function scribbleTargets(s){
+function scribbleTargets(s, dur){
+  const R = SCRIB_RULES[scribble] || SCRIB_RULES.normal;
   const p = s.p, n = p.length / 3; if (n < 12) return null;
+  if (dur > R.maxMs) return null;                      // slow strokes are writing
   const xs = [], ys = []; for (let i = 0; i < p.length; i += 3){ xs.push(p[i]); ys.push(p[i+1]); }
   const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
   const w = maxX - minX, h = maxY - minY;
-  if (Math.max(legCount(xs, w), legCount(ys, h)) < 5) return null;
+  const legs = R.sideways ? legCount(xs, w, R.big) : Math.max(legCount(xs, w, R.big), legCount(ys, h, R.big));
+  if (legs < R.legs) return null;
+  if (R.density){ let len = 0; for (let i = 3; i < p.length; i += 3) len += Math.hypot(p[i] - p[i-3], p[i+1] - p[i-2]); if (len < R.density * Math.max(w, 20)) return null; }
   const pad = 8, x0 = minX - pad, x1 = maxX + pad, y0 = minY - pad, y1 = maxY + pad;
   const hit = new Set();
   for (const o of strokes){
     const q = o.p; let inside = 0; const m = q.length / 3;
     for (let i = 0; i < q.length; i += 3) if (q[i] >= x0 && q[i] <= x1 && q[i+1] >= y0 && q[i+1] <= y1) inside++;
-    if (m && inside / m >= 0.5) hit.add(o);
+    if (m && inside / m >= R.cover) hit.add(o);
   }
   return hit.size ? hit : null;
 }
@@ -3020,6 +3064,7 @@ window.snezzyBack = () => {
   if ($('modal').classList.contains('on')){ $('mNo').click(); return true; }
   if ($('chooser').classList.contains('on') && replacing){ $('chCancel').click(); return true; }
   if ($('builderView').classList.contains('on')){ $('bdCancel').click(); return true; }
+  if ($('scribPop').classList.contains('on')){ $('scribPop').classList.remove('on'); return true; }
   if ($('alarmBox').classList.contains('on')){ $('alNo').click(); return true; }
   if ($('welcome').classList.contains('on')){ $('wSkip').click(); return true; }
   if ($('importView').classList.contains('on')){ $('imClose').click(); return true; }
@@ -3049,7 +3094,7 @@ $('wSkip').onclick = () => { lsSet('dl-name-asked', true); $('welcome').classLis
 $('wName').addEventListener('keydown', e => { if (e.key === 'Enter') $('wGo').click(); });
 $('brand').onclick = () => askName(false);
 applyName();
-renderModeRow(); renderPeriodRow(); renderLookRows(); applyTheme();
+renderModeRow(); renderPeriodRow(); renderLookRows(); applyTheme(); renderScribRow();
 if (!lsGet('dl-name-asked', false)) askName(true);
 
 /* ---------------- start ---------------- */

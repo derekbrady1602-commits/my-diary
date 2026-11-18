@@ -5,6 +5,7 @@
 - Full screen now really fills the screen when you scroll down a page: every bar hides, including the toolbar, and a small set of pen tools sits on the side
 - Fixed full screen not switching on at all in v1.0
 - Each page can have its own page colour and header colour with the 🎨 button. The Look settings are now the defaults for new pages
+- Scribble to delete has a sensitivity setting (Off, Strict, Normal, Easy) and Normal no longer rubs out handwriting with lots of up-and-down letters
 
 ## v1.0
 
