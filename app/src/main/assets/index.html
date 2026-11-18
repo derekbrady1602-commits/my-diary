@@ -44,7 +44,15 @@ body.dark .legend .mk[style*="#efe8fb"]{background:#2c2542!important}
 html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:Nunito,system-ui,sans-serif;overflow:hidden;-webkit-user-select:none;user-select:none}
 button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;touch-action:manipulation}
 #app{height:100%;display:flex;flex-direction:column}
-#app.immersive .top,#app.immersive #dateBar,#app.immersive #listBar,#app.immersive #pagesBar,#app.immersive #alarmBar{display:none!important}
+#app.immersive .top,#app.immersive #dateBar,#app.immersive #listBar,#app.immersive #pagesBar,#app.immersive #alarmBar,#app.immersive .toolbar,#app.immersive #typedBar{display:none!important}
+#app.immersive #pageScroll{padding-top:0}
+#app.immersive #page{border-top-left-radius:0;border-top-right-radius:0}
+#miniTools{position:fixed;right:10px;top:50%;transform:translateY(-50%);z-index:7;display:none;flex-direction:column;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:6px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+#miniTools.on{display:flex}
+#miniTools button{width:48px;height:48px;border-radius:16px;display:grid;place-items:center;color:var(--ink)}
+#miniTools button.on{background:var(--accs);color:var(--accent)}
+#miniTools .sw{width:34px;height:34px;margin:0 auto}
+#miniTools hr{border:0;border-top:1px solid var(--line);margin:2px 6px}
 #showBars{position:fixed;bottom:18px;right:18px;z-index:7;display:none;min-height:40px;padding:0 14px;border-radius:20px;background:var(--card);border:1px solid var(--line);font-weight:800;font-size:14px;box-shadow:0 4px 14px rgba(0,0,0,.15);opacity:.9}
 #showBars.on{display:block}
 .top{display:flex;align-items:center;gap:14px;padding:12px 22px;border-bottom:1px solid var(--line);flex-wrap:wrap}
@@ -203,6 +211,13 @@ h3{font-family:Fraunces,serif;font-size:24px;margin:34px 0 12px}
 .chk{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px}
 .chk input{width:22px;height:22px}
 @media (max-width:860px){.bcols{grid-template-columns:1fr}.bright{position:static}}
+#lookPop{position:fixed;z-index:8;display:none;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:14px 16px;box-shadow:0 12px 34px rgba(40,30,20,.22);width:min(430px,94vw)}
+#lookPop.on{display:block}
+#lookPop h5{margin:0 0 4px;font-size:16px;font-family:Fraunces,serif}
+#lookPop p{margin:10px 0 6px;font-size:13px;font-weight:800;color:var(--muted)}
+#lookPop .lrow{display:flex;flex-wrap:wrap;gap:7px}
+#lookPop .lrow button{width:44px;height:40px;border-radius:12px;border:2px solid var(--line);font-size:10px;font-weight:800;display:grid;place-items:end center;padding-bottom:2px;overflow:hidden}
+#lookPop .lrow button.on{box-shadow:0 0 0 3px var(--ink)}
 #chActions{max-width:1000px;margin:0 auto 18px;display:none;gap:10px;flex-wrap:wrap}
 .sheetView{position:fixed;inset:0;background:var(--bg);z-index:9;overflow:auto;display:none}
 .sheetView.on{display:block}
@@ -453,9 +468,9 @@ input{-webkit-user-select:text;user-select:text}
         <h3>Look</h3>
         <p class="empty" style="margin:0 0 8px">Dark mode</p>
         <div class="optRow modeRow" id="darkRow"></div>
-        <p class="empty" style="margin:14px 0 8px">Page colour</p>
+        <p class="empty" style="margin:14px 0 8px">Default page colour (change one page with the 🎨 button on it)</p>
         <div class="optRow" id="paperRow" style="gap:10px"></div>
-        <p class="empty" style="margin:14px 0 8px">Header colour</p>
+        <p class="empty" style="margin:14px 0 8px">Default header colour</p>
         <div class="optRow" id="headRow" style="gap:10px"></div>
         <h3>How you write</h3>
         <p class="empty" style="margin:0 0 10px">Auto uses typing on a phone and the pen on a tablet.</p>
@@ -531,6 +546,7 @@ input{-webkit-user-select:text;user-select:text}
         <div class="tg">
           <button class="tb" id="undo" title="Undo"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-4"/></svg></button>
           <button class="tb" id="redo" title="Redo"><svg class="i" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h4"/></svg></button>
+          <button class="tb" id="lookBtn" title="Colours for this page">🎨</button>
           <button class="tb" id="tplBtn" title="Change template"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
           <button class="tb" id="clear" title="Clear page"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
         </div>
@@ -542,6 +558,7 @@ input{-webkit-user-select:text;user-select:text}
       <div id="pageScroll"><div id="page"><canvas id="cMain"></canvas><canvas id="cLive"></canvas><div id="selBar"><button id="selDel">🗑 Delete</button><button id="selCopy">⧉ Copy</button><button id="selDone">✓ Done</button></div></div></div>
       <div id="typedBar">
         <button class="tog on" id="toPen" title="Write with a pen instead">✎ Write with pen</button>
+        <button class="tb" id="lookBtn2" title="Colours for this page">🎨</button>
         <button class="tb" id="tplBtn2" title="Change template"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
         <button class="tb" id="clear2" title="Clear page"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
         <div class="saved" id="saved2" style="display:block"></div>
@@ -553,7 +570,26 @@ input{-webkit-user-select:text;user-select:text}
 
 <div class="modal" id="modal"><div class="box"><h4 id="mH"></h4><p id="mP"></p><div class="row"><button class="pill" id="mNo">Cancel</button><button class="pill btnDanger" id="mYes">OK</button></div></div></div>
 <div id="palette"></div>
+<div id="lookPop">
+  <h5>Colours for this page</h5>
+  <p>Page</p><div class="lrow" id="lpPaper"></div>
+  <p>Header</p><div class="lrow" id="lpHead"></div>
+  <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:12px"><button class="pill small" id="lpReset">Use my defaults</button><button class="pill small primary" id="lpDone">Done</button></div>
+</div>
 <button id="showBars" title="Show the menus again">⌃ Menus</button>
+<div id="miniTools">
+  <button data-mt="pen" title="Pen"><svg class="i" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg></button>
+  <button data-mt="hl" title="Highlighter"><svg class="i" viewBox="0 0 24 24"><path d="M8 14l-3 3v3h3l3-3"/><path d="M8 14l8-10 4 4-9 9z"/></svg></button>
+  <button data-mt="eraser" title="Eraser"><svg class="i" viewBox="0 0 24 24"><path d="M7 20h13"/><path d="M4 15l9-9 6 6-8 8H9z"/></svg></button>
+  <button data-mt="text" title="Type"><svg class="i" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
+  <button data-mt="select" title="Select"><svg class="i" viewBox="0 0 24 24"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/></svg></button>
+  <button id="mtColor" title="Colour"><span class="sw" id="mtSw"></span></button>
+  <hr>
+  <button id="mtUndo" title="Undo"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-4"/></svg></button>
+  <button id="mtRedo" title="Redo"><svg class="i" viewBox="0 0 24 24"><path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 000 12h4"/></svg></button>
+  <hr>
+  <button id="mtMenus" title="Show the menus">⌃</button>
+</div>
 
 <!-- first start: ask for a name -->
 <!-- make your own template -->
@@ -874,17 +910,22 @@ const PAGE_THEMES = {
 };
 const HEADER_COLORS = ['auto','#f7ead3','#f7dfe3','#fde4ee','#ffe0cc','#fff1b8','#dceae7','#d8f0dc','#dde8f5','#d6ecf7','#ebe3f5','#e8e2da','#c4566b','#e91e63','#6a4796','#2f5f9e','#2f6a63','#b07418','#2a2733'];
 const isDarkMode = () => lsGet('dl-dark', false);
+// LOOK holds the colours chosen for one page. When it is empty the defaults from Settings are used.
+let LOOK = null;
+const lookPaper = () => (LOOK && LOOK.paper) || lsGet('dl-paper', 'auto');
+const lookHead = () => (LOOK && LOOK.header) || lsGet('dl-header', 'auto');
+function withLook(look, fn){ const old = LOOK; LOOK = look || null; try { return fn(); } finally { LOOK = old; } }
 function PT(){
-  const p = lsGet('dl-paper', 'auto');
+  const p = lookPaper();
   if (p !== 'auto' && PAGE_THEMES[p]) return PAGE_THEMES[p];
   return isDarkMode() ? PAGE_THEMES.night : PAGE_THEMES.cream;
 }
 const lum = hex => { const n = parseInt(hex.slice(1), 16); const r = (n >> 16) & 255, g = (n >> 8) & 255, b = n & 255; return (0.299*r + 0.587*g + 0.114*b) / 255; };
 const cc = cat => PT().dark ? cat.light : cat.color;          // label colour on the page
 const cs = cat => PT().dark ? cat.dsoft : cat.soft;           // soft tint on the page
-function headBg(cat){ const h = lsGet('dl-header', 'auto'); return h === 'auto' ? cs(cat) : h; }
-function headInk(cat){ const h = lsGet('dl-header', 'auto'); if (h === 'auto') return cc(cat); return lum(h) < 0.55 ? '#ffffff' : (lum(cat.color) < 0.6 ? cat.color : '#2a2733'); }
-function headSub(cat){ const h = lsGet('dl-header', 'auto'); if (h === 'auto') return PT().text; return lum(h) < 0.55 ? 'rgba(255,255,255,.85)' : '#5c554a'; }
+function headBg(cat){ const h = lookHead(); return h === 'auto' ? cs(cat) : h; }
+function headInk(cat){ const h = lookHead(); if (h === 'auto') return cc(cat); return lum(h) < 0.55 ? '#ffffff' : (lum(cat.color) < 0.6 ? cat.color : '#2a2733'); }
+function headSub(cat){ const h = lookHead(); if (h === 'auto') return PT().text; return lum(h) < 0.55 ? 'rgba(255,255,255,.85)' : '#5c554a'; }
 const uiSoft = cat => isDarkMode() ? cat.dsoft : cat.soft;    // tints in the app screens
 const uiInk = cat => isDarkMode() ? cat.light : cat.color;
 const inkFor = c => (PT().dark && (c === '#1f2a44' || c === '#000000')) ? '#ece8e1' : c;  // dark ink shows light on a dark page
@@ -1257,6 +1298,7 @@ const cMain = $('cMain'), cLive = $('cLive'), mctx = cMain.getContext('2d'), lct
 
 function show(view){
   closeExpand(); setImmersive(false);
+  if (view !== 'day') LOOK = null;
   for (const v of ['cal','day','lists']) $(v).classList.toggle('on', v === view);
   const inLists = view === 'lists' || (view === 'day' && cur.folderId);
   $('navCal').classList.toggle('on', !inLists); $('navLists').classList.toggle('on', inLists);
@@ -1330,7 +1372,7 @@ async function openCat(cat, n){
 }
 function showChooser(cat, n, isReplace){
   replacing = !!isReplace;
-  if (!replacing){ cur.n = n; cur.tpl = null; cur.extra = {}; cur.data = emptyData(); cur.alarms = []; strokes = []; undoStack = []; redoStack = []; }
+  if (!replacing){ cur.n = n; cur.tpl = null; cur.extra = {}; cur.data = emptyData(); cur.alarms = []; cur.look = null; strokes = []; undoStack = []; redoStack = []; }
   $('alarmBar').classList.remove('on');
   $('cycleView').classList.remove('on');
   if (!cur.folderId){ renderTabs(); renderPagesBar(); }
@@ -1352,8 +1394,7 @@ function showChooser(cat, n, isReplace){
     const b = document.createElement('button'); b.className = 'tcard';
     const c = document.createElement('canvas'); c.width = 420; c.height = 520;
     const ctx = c.getContext('2d'); const sc = 420 / W; ctx.scale(sc, sc);
-    ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc);
-    drawPage(ctx, t, cur.date, {}, cur.name);
+    withLook(null, () => { ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc); drawPage(ctx, t, cur.date, {}, cur.name); });
     b.appendChild(c);
     b.insertAdjacentHTML('beforeend', `<b>${t.name}</b><span>${t.desc}</span>`);
     b.onclick = () => pickTemplate(t.id);
@@ -1376,11 +1417,13 @@ async function openPage(n, tplId){
   strokes = rec ? decode(rec.strokes) : [];
   cur.data = dataOf(rec);
   cur.alarms = (rec && rec.alarms) ? rec.alarms.slice() : [];
+  cur.look = (rec && rec.look) ? { ...rec.look } : null;
   openEditor();
   setSaved(rec ? 'Saved' : '');
 }
 function openEditor(){
   closeTextEdit(); clearSel();
+  LOOK = cur.look || null;
   $('cycleView').classList.remove('on');
   renderAlarmBar();
   $('chooser').classList.remove('on'); $('editor').classList.add('on');
@@ -1564,6 +1607,7 @@ function periodRows(k){
 }
 let cycTimer = null, cycData = null;
 async function openPeriod(){
+  LOOK = null;
   await flush();
   cur.cat = 'period'; cur.tpl = null;
   $('chooser').classList.remove('on'); $('editor').classList.remove('on'); $('pagesBar').classList.remove('on');
@@ -1666,13 +1710,50 @@ function renderLookRows(){
   $('headRow').querySelectorAll('button').forEach(b => b.onclick = () => { lsSet('dl-header', b.dataset.v); renderLookRows(); refreshPages(); });
 }
 
+/* ---------------- colours for one page ----------------
+   The 🎨 button sets the page and header colour for the page you are on.
+   "Use my defaults" goes back to the colours chosen in Settings. */
+function openLookPop(anchor){
+  const lk = cur.look || {};
+  const paper = lk.paper || '', head = lk.header || '';
+  $('lpPaper').innerHTML = `<button data-v="" class="${!paper ? 'on' : ''}" style="background:linear-gradient(135deg,var(--paper) 50%,var(--line) 50%);color:var(--muted)">Default</button>` +
+    `<button data-v="auto" class="${paper === 'auto' ? 'on' : ''}" style="background:linear-gradient(135deg,#fbf7f0 50%,#23222b 50%);color:#9a9184">Auto</button>` +
+    Object.entries(PAGE_THEMES).map(([k, t]) => `<button data-v="${k}" class="${paper === k ? 'on' : ''}" style="background:${t.paper};color:${t.muted}">${t.name}</button>`).join('');
+  $('lpHead').innerHTML = `<button data-v="" class="${!head ? 'on' : ''}" style="background:linear-gradient(135deg,var(--paper) 50%,var(--line) 50%);color:var(--muted)">Default</button>` +
+    HEADER_COLORS.map(c => c === 'auto' ? `<button data-v="auto" class="${head === 'auto' ? 'on' : ''}" style="background:conic-gradient(#f7ead3 0 25%,#f7dfe3 0 50%,#dceae7 0 75%,#dde8f5 0);color:#5c554a">Tab</button>`
+      : `<button data-v="${c}" class="${head === c ? 'on' : ''}" style="background:${c}"></button>`).join('');
+  const set = (key, v) => {
+    const n = { ...(cur.look || {}) }; if (v) n[key] = v; else delete n[key];
+    cur.look = Object.keys(n).length ? n : null; LOOK = cur.look;
+    if (isTyped()) buildTyped(true); else render();
+    markDirty(); openLookPop(anchor);
+  };
+  $('lpPaper').querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); set('paper', b.dataset.v); });
+  $('lpHead').querySelectorAll('button').forEach(b => b.onclick = e => { e.stopPropagation(); set('header', b.dataset.v); });
+  const p = $('lookPop'); p.classList.add('on');
+  const r = anchor.getBoundingClientRect(), pw = p.offsetWidth;
+  p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width / 2 - pw / 2)) + 'px';
+  p.style.top = Math.min(window.innerHeight - p.offsetHeight - 8, r.bottom + 10) + 'px';
+}
+$('lookBtn').onclick = e => { e.stopPropagation(); openLookPop($('lookBtn')); };
+$('lookBtn2').onclick = e => { e.stopPropagation(); openLookPop($('lookBtn2')); };
+$('lpReset').onclick = e => { e.stopPropagation(); cur.look = null; LOOK = null; if (isTyped()) buildTyped(true); else render(); markDirty(); $('lookPop').classList.remove('on'); };
+$('lpDone').onclick = e => { e.stopPropagation(); $('lookPop').classList.remove('on'); };
+document.addEventListener('click', e => { if (!$('lookPop').contains(e.target)) $('lookPop').classList.remove('on'); });
+
 /* ---------------- full screen while scrolling ----------------
    Scrolling down a page hides the menus so the page fills the screen.
    Scrolling back up (or the Menus button) brings them back. */
 let immersive = false, immLock = 0;
 function setImmersive(on){
   if (on === immersive) return;
-  immersive = on; immLock = performance.now() + 500;   // the page shifts when bars hide or show, so ignore scrolling for a moment $('app').classList.toggle('immersive', on); $('showBars').classList.toggle('on', on);
+  immersive = on;
+  immLock = performance.now() + 500;   // the page shifts when bars hide or show, so ignore scrolling for a moment
+  $('app').classList.toggle('immersive', on);
+  const penPage = on && $('day').classList.contains('on') && $('editor').classList.contains('on') && !isTyped();
+  $('miniTools').classList.toggle('on', penPage);
+  $('showBars').classList.toggle('on', on && !penPage);
+  if (penPage) syncMini();
   try { window.SnezzyAndroid && window.SnezzyAndroid.setFullscreen && window.SnezzyAndroid.setFullscreen(on); } catch(e){}
 }
 function watchScroll(el){
@@ -1688,6 +1769,15 @@ function watchScroll(el){
 }
 ['pageScroll','typedView','cycleView','chooser'].forEach(id => watchScroll($(id)));
 $('showBars').onclick = () => setImmersive(false);
+$('mtMenus').onclick = () => setImmersive(false);
+$('miniTools').querySelectorAll('[data-mt]').forEach(b => b.onclick = () => { const t = document.querySelector(`.toolbar [data-tool="${b.dataset.mt}"]`); if (t) t.click(); syncMini(); });
+$('mtUndo').onclick = () => { $('undo').click(); };
+$('mtRedo').onclick = () => { $('redo').click(); };
+$('mtColor').onclick = e => { e.stopPropagation(); openPalette($('mtColor')); };
+function syncMini(){
+  $('miniTools').querySelectorAll('[data-mt]').forEach(b => b.classList.toggle('on', b.dataset.mt === tool));
+  $('mtSw').style.background = color;
+}
 
 /* ---------------- typing mode (phones) ----------------
    Every line, tick box and choice on a template becomes a text box or a button.
@@ -1812,7 +1902,7 @@ function buildTyped(keepScroll){
   const view = $('typedView'); const top = view.scrollTop;
   const tpl = TPL[cur.tpl]; if (!tpl) return; const cat = CATS[tpl.cat];
   const page = el('div', 'tpage');
-  const head = el('div', 'thead'); const hc = lsGet('dl-header', 'auto'); head.style.background = hc === 'auto' ? uiSoft(cat) : hc;
+  const head = el('div', 'thead'); const hc = lookHead(); head.style.background = hc === 'auto' ? uiSoft(cat) : hc;
   const d = cur.date ? parseKey(cur.date) : null;
   const hink = hc === 'auto' ? uiInk(cat) : headInk(cat);
   head.innerHTML = `<small style="color:${hink}">${cur.date ? cat.icon + ' ' + cat.title : '✓ My lists'}</small><b style="color:${hink}">${esc(!cur.date && cur.name ? cur.name : tpl.name)}</b><span>${d ? WEEKDAYS[d.getDay()] + ' ' + prettyDate(d) : (cur.name && cur.name !== tpl.name ? esc(tpl.name) : '')}</span>`;
@@ -1844,6 +1934,7 @@ function buildTyped(keepScroll){
     }
     page.appendChild(box);
   }
+  view.style.background = (LOOK && LOOK.paper && PAGE_THEMES[LOOK.paper]) ? PT().paper : '';
   view.innerHTML = ''; view.appendChild(page);
   if (keepScroll) view.scrollTop = top;
 }
@@ -1943,8 +2034,7 @@ function bdPreview(){
   const m = measure(bd, keyOf(new Date()), {}); const sc = w / W;
   c.width = Math.round(w * dpr); c.height = Math.round(m.H * sc * dpr); c.style.height = (m.H * sc) + 'px';
   const ctx = c.getContext('2d'); ctx.setTransform(sc * dpr, 0, 0, sc * dpr, 0, 0);
-  ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, m.H);
-  drawPage(ctx, bd, keyOf(new Date()), {}, '', emptyData());
+  withLook(null, () => { ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, m.H); drawPage(ctx, bd, keyOf(new Date()), {}, '', emptyData()); });
 }
 $('bdName').addEventListener('input', bdChanged);
 $('bdCancel').onclick = () => $('builderView').classList.remove('on');
@@ -1978,8 +2068,7 @@ function tplCard(t, onPick, title){
   const b = document.createElement('button'); b.className = 'tcard';
   const c = document.createElement('canvas'); c.width = 420; c.height = 520;
   const ctx = c.getContext('2d'); const sc = 420 / W; ctx.scale(sc, sc);
-  ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc);
-  drawPage(ctx, t, null, {}, title || '');
+  withLook(null, () => { ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc); drawPage(ctx, t, null, {}, title || ''); });
   b.appendChild(c);
   b.insertAdjacentHTML('beforeend', `<b>${t.name}</b><span>${t.desc}</span>`);
   b.onclick = () => onPick(t);
@@ -2006,9 +2095,9 @@ async function renderLists(){
     g.appendChild(b);
     Store.getLocal(k).then(rec => {
       const ctx = c.getContext('2d'); const sc = 420 / W; ctx.setTransform(sc, 0, 0, sc, 0, 0);
-      ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc);
-      drawPage(ctx, t, null, (rec && rec.extra) || {}, m.name, dataOf(rec));
-      if (rec) decode(rec.strokes).forEach(s => drawStroke(ctx, s));
+      withLook(rec && rec.look, () => { ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc);
+        drawPage(ctx, t, null, (rec && rec.extra) || {}, m.name, dataOf(rec));
+        if (rec) decode(rec.strokes).forEach(s => drawStroke(ctx, s)); });
     });
   }
 }
@@ -2034,6 +2123,7 @@ async function openFolderList(id){
   strokes = decode(rec.strokes); undoStack = []; redoStack = [];
   cur.data = dataOf(rec);
   cur.alarms = [];
+  cur.look = rec.look ? { ...rec.look } : null;
   $('listName').value = cur.name;
   setMode(true); show('day'); openEditor();
   setSaved('Saved');
@@ -2167,13 +2257,15 @@ function openPalette(anchor){
   p.classList.add('on');
   const r = anchor.getBoundingClientRect(), pw = p.offsetWidth;
   p.style.left = Math.max(8, Math.min(window.innerWidth - pw - 8, r.left + r.width/2 - pw/2)) + 'px';
-  p.style.top = (r.bottom + 10) + 'px';
+  p.style.top = (r.bottom + 10 + p.offsetHeight > window.innerHeight ? Math.max(8, r.top - p.offsetHeight - 10) : r.bottom + 10) + 'px';
+  if (anchor.id === 'mtColor') p.style.left = Math.max(8, r.left - pw - 10) + 'px';
 }
 document.addEventListener('click', e => { if (!$('palette').contains(e.target)) $('palette').classList.remove('on'); });
 SIZES.forEach(s => { const b = document.createElement('button'); b.className = 'sz'; b.dataset.s = s; const d = Math.round(s*2.6 + 2); b.innerHTML = `<i style="width:${d}px;height:${d}px"></i>`; b.onclick = () => { size = s; lsSet('dl-size', s); syncTools(); }; $('sizes').appendChild(b); });
 document.querySelectorAll('[data-tool]').forEach(b => b.onclick = () => { closeTextEdit(); clearSel(); tool = b.dataset.tool; lsSet('dl-tool', tool); syncTools(); });
 function syncTools(){
   renderColors();
+  if (typeof syncMini === 'function' && $('miniTools')) try { syncMini(); } catch(e){}
   document.querySelectorAll('[data-tool]').forEach(b => b.classList.toggle('on', b.dataset.tool === tool));
   document.querySelectorAll('.sw').forEach(b => b.classList.toggle('on', b.dataset.c === color));
   const uiCol = (isDarkMode() && (color === '#1f2a44' || color === '#000000')) ? '#ece8e1' : color;
@@ -2215,7 +2307,7 @@ async function flush(){
   const key = curKey();
   const empty = !strokes.length && !typedCount(cur.data) && !(cur.alarms && cur.alarms.length);
   if (empty && !cur.folderId) await Store.remove(key);
-  else await Store.putLocal(key, { strokes: encode(strokes), updated: Date.now(), tpl: cur.tpl, extra: cur.extra, name: cur.folderId ? cur.name : undefined, custom: (TPL[cur.tpl] && TPL[cur.tpl].custom) ? TPL[cur.tpl] : undefined, ...cur.data, alarms: (cur.alarms && cur.alarms.length) ? cur.alarms : undefined });
+  else await Store.putLocal(key, { strokes: encode(strokes), updated: Date.now(), tpl: cur.tpl, extra: cur.extra, name: cur.folderId ? cur.name : undefined, custom: (TPL[cur.tpl] && TPL[cur.tpl].custom) ? TPL[cur.tpl] : undefined, ...cur.data, alarms: (cur.alarms && cur.alarms.length) ? cur.alarms : undefined, look: cur.look || undefined });
   Sync.changed(key);
   setSaved((!empty || cur.folderId) ? 'Saved' : '');
   if (!cur.folderId){ renderTabs(); renderPagesBar(); }
@@ -2592,7 +2684,7 @@ $('mYes').onclick = () => { $('modal').classList.remove('on'); const f = modalYe
 // where a new list goes: 'day' = the Lists tab of the day you are on, 'folder' = My lists
 let listDest = 'day';
 async function makeListPage(rec, name){
-  const base = { strokes: rec.strokes || [], updated: Date.now(), tpl: rec.tpl, extra: rec.extra || {}, custom: rec.custom, ...dataOf(rec) };
+  const base = { strokes: rec.strokes || [], updated: Date.now(), tpl: rec.tpl, extra: rec.extra || {}, custom: rec.custom, ...dataOf(rec), look: rec.look };
   if (listDest === 'folder'){
     const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
     await Store.putLocal('L_' + id, { ...base, name: name || tplFor(rec.tpl, 'lists').name });
@@ -2609,7 +2701,8 @@ async function openMade(r){
   if (r.folderId) await openFolderList(r.folderId);
   else { cur.cat = 'lists'; await openPage(r.n, null); }
 }
-function thumb(tpl, extra, title, enc, k, data){
+function thumb(tpl, extra, title, enc, k, data, look){ return withLook(look, () => thumbInner(tpl, extra, title, enc, k, data)); }
+function thumbInner(tpl, extra, title, enc, k, data){
   const c = document.createElement('canvas'); c.width = 420; c.height = 520;
   const ctx = c.getContext('2d'); const sc = 420 / W; ctx.scale(sc, sc);
   ctx.fillStyle = PT().paper; ctx.fillRect(0, 0, W, 520 / sc);
@@ -2659,7 +2752,7 @@ async function pickCopyDay(k){
     const rec = await Store.getLocal(p.k); if (!rec) continue;
     const t = tplFor(rec.tpl, 'lists');
     const b = document.createElement('button'); b.className = 'tcard';
-    b.appendChild(thumb(t, rec.extra, '', rec.strokes, k, dataOf(rec)));
+    b.appendChild(thumb(t, rec.extra, '', rec.strokes, k, dataOf(rec), rec.look));
     b.insertAdjacentHTML('beforeend', `<b>${esc(t.name)}</b><span>Tap to copy this list</span>`);
     b.onclick = () => doCopy(p.k);
     g.appendChild(b);
@@ -2829,7 +2922,7 @@ const Sync = {
       let strokesData = [];
       try { strokesData = JSON.parse(d.data || '[]'); } catch(e){ continue; }
       let typed = {}; try { typed = d.typed ? JSON.parse(d.typed) : {}; } catch(e){}
-      await Store.putLocal(key, { strokes: strokesData, updated: d.updated, tpl: d.tpl, extra: d.extra || {}, name: d.name || undefined, custom: d.custom ? JSON.parse(d.custom) : undefined, ...dataOf(typed), cycle: d.cycle ? JSON.parse(d.cycle) : undefined, alarms: d.alarms ? JSON.parse(d.alarms) : undefined });
+      await Store.putLocal(key, { strokes: strokesData, updated: d.updated, tpl: d.tpl, extra: d.extra || {}, name: d.name || undefined, custom: d.custom ? JSON.parse(d.custom) : undefined, ...dataOf(typed), cycle: d.cycle ? JSON.parse(d.cycle) : undefined, alarms: d.alarms ? JSON.parse(d.alarms) : undefined, look: d.look ? JSON.parse(d.look) : undefined });
       if (key.startsWith('C_') && cur.cat === 'period') openChanged = true;
       changedSomething = true; if (key === openKey) openChanged = true;
     }
@@ -2855,7 +2948,7 @@ const Sync = {
       for (const key of [...this.pending]){
         const rec = await Store.getLocal(key);
         const ref = this.col().doc(key);
-        if (rec) await ref.set({ data: JSON.stringify(rec.strokes), tpl: rec.tpl || null, extra: rec.extra || {}, updated: rec.updated, name: rec.name || null, custom: rec.custom ? JSON.stringify(rec.custom) : null, typed: JSON.stringify(dataOf(rec)), cycle: rec.cycle ? JSON.stringify(rec.cycle) : null, alarms: rec.alarms ? JSON.stringify(rec.alarms) : null });
+        if (rec) await ref.set({ data: JSON.stringify(rec.strokes), tpl: rec.tpl || null, extra: rec.extra || {}, updated: rec.updated, name: rec.name || null, custom: rec.custom ? JSON.stringify(rec.custom) : null, typed: JSON.stringify(dataOf(rec)), cycle: rec.cycle ? JSON.stringify(rec.cycle) : null, alarms: rec.alarms ? JSON.stringify(rec.alarms) : null, look: rec.look ? JSON.stringify(rec.look) : null });
         else await ref.set({ deleted: true, updated: Date.now() });
         this.pending.delete(key); this.savePending();
       }
@@ -2899,7 +2992,7 @@ async function importAll(data){
   for (const p of data.pages){
     const curM = Store.index[p.key];
     if (!curM || (p.updated || 0) > (curM.updated || 0)){
-      await Store.putLocal(p.key, { strokes: p.strokes || [], updated: p.updated, tpl: p.tpl, extra: p.extra || {}, name: p.name, custom: p.custom, ...dataOf(p), cycle: p.cycle, alarms: p.alarms }); Sync.changed(p.key); added++;
+      await Store.putLocal(p.key, { strokes: p.strokes || [], updated: p.updated, tpl: p.tpl, extra: p.extra || {}, name: p.name, custom: p.custom, ...dataOf(p), cycle: p.cycle, alarms: p.alarms, look: p.look }); Sync.changed(p.key); added++;
     }
   }
   return added;
@@ -2931,6 +3024,7 @@ window.snezzyBack = () => {
   if ($('welcome').classList.contains('on')){ $('wSkip').click(); return true; }
   if ($('importView').classList.contains('on')){ $('imClose').click(); return true; }
   if ($('copyView').classList.contains('on')){ if ($('cpPick').style.display !== 'none') $('cpBack').click(); else $('cpClose').click(); return true; }
+  if ($('lookPop').classList.contains('on')){ $('lookPop').classList.remove('on'); return true; }
   if ($('palette').classList.contains('on')){ $('palette').classList.remove('on'); return true; }
   if (expanded){ closeExpand(); return true; }
   if ($('day').classList.contains('on')){ (cur.folderId ? $('listBack') : $('backBtn')).click(); return true; }

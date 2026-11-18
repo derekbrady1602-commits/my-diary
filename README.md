@@ -55,7 +55,8 @@ On any Appointments page tap **⏰ Set an alarm**, choose the date and time and 
 - **Select** lets you draw a loop around anything on the page (handwriting, typed text on the lines or text boxes), then drag it somewhere else. The little bar lets you delete or copy what you picked.
 - **Tap a tick box** with the pen or your finger to tick or untick it.
 - **Swipe across a ticked item** (a quick sideways line with the pen, or a finger swipe) and it asks whether to delete that row or keep it. Deleting moves everything under it up.
-- Scrolling down a page hides the menus so the page fills the screen. Scroll up a little, or tap **Menus**, to bring them back.
+- Scrolling down a page hides every bar so the page fills the whole screen, with a small set of pen tools on the side. Scroll up a little, or tap **⌃** on the side tools, to bring the menus back.
+- The **🎨** button on a page sets the page colour and header colour for that page only.
 
 ## Make your own templates
 
@@ -63,7 +64,7 @@ Open any tab on a day and tap **+ Make your own** at the start of the template l
 
 ## Look
 
-At the bottom of the calendar under **Look** you can switch dark mode on or off, pick a page colour (Cream, White, Pink, Peach, Lemon, Mint, Sky, Lavender, Grey, Night or Black) and pick a header colour.
+At the bottom of the calendar under **Look** you can switch dark mode on or off and pick the default page colour (Cream, White, Pink, Peach, Lemon, Mint, Sky, Lavender, Grey, Night or Black) and header colour. To give one page its own colours, use the **🎨** button on that page.
 
 ## Keeping your pages safe
 
