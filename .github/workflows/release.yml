@@ -37,17 +37,24 @@ jobs:
           chmod +x gradlew
           ./gradlew assembleRelease --no-daemon
 
+      # Two copies: one with the version in its name, and MyDiary.apk so that
+      # https://github.com/<owner>/my-diary/releases/latest/download/MyDiary.apk
+      # always downloads the newest release.
       - name: Name the APK
-        run: cp app/build/outputs/apk/release/app-release.apk "MyDiary-$TAG.apk"
+        run: |
+          cp app/build/outputs/apk/release/app-release.apk "MyDiary-$TAG.apk"
+          cp app/build/outputs/apk/release/app-release.apk "MyDiary.apk"
 
       - name: Attach it to the release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
-          files: MyDiary-*.apk
+          files: |
+            MyDiary-*.apk
+            MyDiary.apk
 
       - name: Keep a copy as a build artifact
         uses: actions/upload-artifact@v4
         with:
           name: MyDiary-apk
-          path: MyDiary-*.apk
+          path: MyDiary.apk
