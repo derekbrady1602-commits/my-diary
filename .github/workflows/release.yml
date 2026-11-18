@@ -1,0 +1,44 @@
+# Builds the Android app and attaches the APK to the GitHub release
+# whenever a version tag like v1.0 is pushed (or when run by hand).
+name: Build and release APK
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Build the APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Name the APK
+        run: cp app/build/outputs/apk/release/app-release.apk "MyDiary-${{ github.ref_name }}.apk"
+
+      - name: Attach it to the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: MyDiary-*.apk
+
+      - name: Keep a copy as a build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyDiary-apk
+          path: MyDiary-*.apk
