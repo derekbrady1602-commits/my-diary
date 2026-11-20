@@ -14,6 +14,8 @@ import android.os.Environment
 import android.provider.OpenableColumns
 import android.util.Base64
 import android.provider.MediaStore
+import android.speech.RecognizerIntent
+import android.app.Activity
 import android.webkit.JavascriptInterface
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
@@ -74,6 +76,13 @@ class MainActivity : ComponentActivity() {
     }
 
     // Asks once for permission to show alarm notifications (Android 13 and newer)
+    // Voice typing. Android's own speech service listens and hands back the words.
+    private val dictateLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { res ->
+        val words = if (res.resultCode == Activity.RESULT_OK)
+            res.data?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)?.firstOrNull() ?: "" else ""
+        webView.evaluateJavascript("window.snezzyDictated && window.snezzyDictated(${JSONObject.quote(words)})", null)
+    }
+
     private val notifPermission = registerForActivityResult(ActivityResultContracts.RequestPermission()) { }
 
     private fun askForNotifications() {
@@ -232,6 +241,22 @@ class MainActivity : ComponentActivity() {
                     "application/octet-stream"
                 ))
             }
+        }
+
+        @JavascriptInterface
+        fun startDictation(lang: String): Boolean {
+            val tag = if (lang == "sr") "sr-RS" else "en-IE"
+            val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE, tag)
+                putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, tag)
+                putExtra(RecognizerIntent.EXTRA_PROMPT, if (lang == "sr") "Govori sada" else "Speak now")
+            }
+            return try {
+                runOnUiThread { try { dictateLauncher.launch(intent) } catch (e: Exception) {
+                    webView.evaluateJavascript("window.snezzyDictated && window.snezzyDictated(null)", null) } }
+                true
+            } catch (e: Exception) { false }
         }
 
         @JavascriptInterface

@@ -36,6 +36,7 @@ Java 17 or newer is needed for the build.
 |---|---|
 | `app/src/main/assets/index.html` | The whole diary (calendar, templates, pen drawing, saving) |
 | `app/src/main/java/ie/derek/snezzysdiary/MainActivity.kt` | Shows the diary full screen and handles backups and the back button |
+| `app/src/main/assets/lang-sr.js` | The Serbian (Latin) words. Change the text on the right of any line to fix a translation |
 | `app/src/main/res/values/strings.xml` | The app name |
 | `app/src/main/res/drawable/ic_launcher_foreground.xml` | The app icon |
 
@@ -58,6 +59,18 @@ On any Appointments page tap **⏰ Set an alarm**, choose the date and time and 
 - **Swipe across a ticked item** (a quick sideways line with the pen, or a finger swipe) and it asks whether to delete that row or keep it. Deleting moves everything under it up.
 - Scrolling down a page hides every bar so the page fills the whole screen, with a small set of pen tools on the side. Scroll up a little, or tap **⌃** on the side tools, to bring the menus back.
 - The **🎨** button on a page sets the page colour and header colour for that page only.
+
+## My lists, notes and blank pages
+
+My lists holds lists that aren't tied to a date. **✎ New note** opens a lined page straight away for jotting things down. **+ New list** lets you make your own list template (the **Make your own** card) or pick a ready-made one, including **Notes**, **Blank page** and **Dotted page**.
+
+## Dictation
+
+Tap where the words should go (a line with the **T** tool, a text box, or a box in the typing view), then press **🎤** and speak. It uses the phone's own voice typing (Google), in English or Serbian depending on the language setting. Serbian comes back in Latin letters. If the 🎤 does nothing, check that Google voice typing is installed and switched on in the phone's keyboard settings.
+
+## Language
+
+Under **Language / Jezik** at the bottom of the calendar choose **English** or **Srpski (latinica)**. The app reloads in the new language. Menus, templates, prompts, dates and the period tracker all change. Anything you've written stays as you wrote it.
 
 ## Make your own templates
 

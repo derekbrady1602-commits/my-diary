@@ -184,7 +184,7 @@ h3{font-family:Fraunces,serif;font-size:24px;margin:34px 0 12px}
 #selBar button:active{background:rgba(255,255,255,.15)}
 .trow.swiping{transition:none}
 .trow.swiped{background:rgba(196,86,107,.12)}
-#chooser .tcard.mine{position:relative;border-color:var(--accent)}
+#chooser .tcard.mine,#newListGrid .tcard.mine{position:relative;border-color:var(--accent)}
 .tcard .edit{position:absolute;top:14px;right:14px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:6px 12px;font-weight:800;font-size:13px;box-shadow:0 1px 4px rgba(0,0,0,.12)}
 .makeCard{border:2px dashed var(--accent)!important;align-items:center;justify-content:center;text-align:center;min-height:200px}
 .makeCard .mk-plus{font-size:54px;font-weight:300;color:var(--accent);line-height:1}
@@ -484,6 +484,8 @@ input{-webkit-user-select:text;user-select:text}
         <div class="optRow modeRow" id="modeRow"></div>
         <p class="empty" style="margin:14px 0 8px">Scribble to delete. Pick Strict if it sometimes rubs out your writing.</p>
         <div class="optRow modeRow" id="scribRow"></div>
+        <h3>Language / Jezik</h3>
+        <div class="optRow modeRow" id="langRow"></div>
         <h3>Period tracker</h3>
         <p class="empty" style="margin:0 0 10px">Adds a Period tab to each day and shows your cycle on the calendar.</p>
         <div class="optRow modeRow" id="periodRow"></div>
@@ -501,7 +503,7 @@ input{-webkit-user-select:text;user-select:text}
   <section id="lists" class="view" style="overflow:auto">
     <div class="calwrap">
       <div id="listHome">
-        <div class="lhead"><h2>My lists</h2><button class="pill primary" id="newList">+ New list</button></div>
+        <div class="lhead"><h2>My lists</h2><button class="pill" id="newNote">✎ New note</button><button class="pill primary" id="newList">+ New list</button></div>
         <p class="empty" style="margin:8px 0 20px">These lists aren't tied to a date, so shopping, books, films and the like are always one tap away.</p>
         <div class="tgrid" id="listGrid"></div>
       </div>
@@ -545,6 +547,7 @@ input{-webkit-user-select:text;user-select:text}
           <button class="tb" data-tool="hl" title="Highlighter"><svg class="i" viewBox="0 0 24 24"><path d="M8 14l-3 3v3h3l3-3"/><path d="M8 14l8-10 4 4-9 9z"/><path d="M4 22h16" stroke-width="3" opacity=".45"/></svg></button>
           <button class="tb" data-tool="text" title="Type with the keyboard: tap a line or anywhere on the page"><svg class="i" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
           <button class="tb" data-tool="select" title="Select: draw a loop around writing or typed text, then drag it"><svg class="i" viewBox="0 0 24 24"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4" /><path d="M10 10l7 3-3 1-1 3z" fill="currentColor"/></svg></button>
+          <button class="tb micBtn" title="Dictate: speak and the words are typed for you">🎤</button>
           <button class="tb" data-tool="eraser" title="Eraser"><svg class="i" viewBox="0 0 24 24"><path d="M7 20h13"/><path d="M4 15l9-9 6 6-8 8H9z"/><path d="M9 10l6 6"/></svg></button>
         </div>
         <div class="sep"></div>
@@ -567,6 +570,7 @@ input{-webkit-user-select:text;user-select:text}
       <div id="pageScroll"><div id="page"><canvas id="cMain"></canvas><canvas id="cLive"></canvas><div id="selBar"><button id="selDel">🗑 Delete</button><button id="selCopy">⧉ Copy</button><button id="selDone">✓ Done</button></div></div></div>
       <div id="typedBar">
         <button class="tog on" id="toPen" title="Write with a pen instead">✎ Write with pen</button>
+        <button class="tb micBtn" title="Dictate: speak and the words are typed for you">🎤</button>
         <button class="tb" id="lookBtn2" title="Colours for this page">🎨</button>
         <button class="tb" id="tplBtn2" title="Change template"><svg class="i" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></button>
         <button class="tb" id="clear2" title="Clear page"><svg class="i" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg></button>
@@ -593,6 +597,7 @@ input{-webkit-user-select:text;user-select:text}
   <button data-mt="eraser" title="Eraser"><svg class="i" viewBox="0 0 24 24"><path d="M7 20h13"/><path d="M4 15l9-9 6 6-8 8H9z"/></svg></button>
   <button data-mt="text" title="Type"><svg class="i" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></svg></button>
   <button data-mt="select" title="Select"><svg class="i" viewBox="0 0 24 24"><path d="M4 8V4h4M16 4h4v4M20 16v4h-4M8 20H4v-4"/></svg></button>
+  <button class="micBtn" title="Dictate">🎤</button>
   <button id="mtColor" title="Colour"><span class="sw" id="mtSw"></span></button>
   <hr>
   <button id="mtUndo" title="Undo"><svg class="i" viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 010 12h-4"/></svg></button>
@@ -675,16 +680,36 @@ input{-webkit-user-select:text;user-select:text}
 <div id="toast"><span id="toastMsg"></span><button id="toastBtn">Undo</button></div>
 
 <script src="firebase-config.js"></script>
+<script src="lang-sr.js"></script>
 <script>
 (() => {
 const $ = id => document.getElementById(id);
+// ---- language: English or Srpski (latinica) ----
+const LANG = (() => { try { return JSON.parse(localStorage.getItem('dl-lang')) || 'en'; } catch(e) { return 'en'; } })();
+const SR = LANG === 'sr' && window.LANG_SR ? window.LANG_SR : null;
+const T = s => {
+  if (!SR || s == null) return s;
+  const str = String(s); if (!str.trim()) return str;
+  if (Object.prototype.hasOwnProperty.call(SR.dict, str)) return SR.dict[str];
+  // keep leading and trailing spaces and symbols (like "☀ " or " ›") and translate the words in between
+  const m = str.match(/^([^A-Za-z0-9"']*)(.*?)([\s.:…›‹»«]*)$/s);
+  if (m && m[2] && (m[1] || m[3])){
+    const core = m[2];
+    if (Object.prototype.hasOwnProperty.call(SR.dict, core)) return m[1] + SR.dict[core] + m[3];
+    if (Object.prototype.hasOwnProperty.call(SR.dict, core + m[3])) return m[1] + SR.dict[core + m[3]];
+  }
+  for (const [re, fn] of SR.patterns){ const r = str.match(re); if (r){ try { return fn(...r); } catch(e) {} } }
+  return str;
+};
+window.T = T;
+document.documentElement.lang = SR ? 'sr-Latn' : 'en';
 const pad = n => String(n).padStart(2, '0');
 const keyOf = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const parseKey = k => { const [y,m,d] = k.split('-').map(Number); return new Date(y, m-1, d); };
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const WEEKDAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const DAYS7 = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-const prettyDate = d => `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+const MONTHS = SR ? SR.months : ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const WEEKDAYS = SR ? SR.weekdays : ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const DAYS7 = SR ? SR.days7 : ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const prettyDate = d => SR ? `${d.getDate()}. ${MONTHS[d.getMonth()]} ${d.getFullYear()}.` : `${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 const shortDate = d => `${WEEKDAYS[d.getDay()].slice(0,3)} ${d.getDate()} ${MONTHS[d.getMonth()].slice(0,3)} ${d.getFullYear()}`;
 const lsGet = (k, def) => { try { const v = localStorage.getItem(k); return v === null ? def : JSON.parse(v); } catch(e) { return def; } };
 const lsSet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch(e) {} };
@@ -710,7 +735,7 @@ const CATS = {
   appointments:{ light:'#bc9ce8', dsoft:'#2f2742', one:'an appointment', title:'Appointments',icon:'⏰', color:'#6a4796', soft:'#ebe3f5' }
 };
 const CAT_ORDER = ['affirmation','gratitude','diary','lists','appointments'];
-const HOURS = ['7am','8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm'];
+const HOURS = SR ? ['7h','8h','9h','10h','11h','12h','13h','14h','15h','16h','17h','18h','19h','20h','21h'] : ['7am','8am','9am','10am','11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm'];
 
 /* Section types
    quote     a prompt box that changes every day
@@ -875,6 +900,12 @@ const TEMPLATES = [
  { id:'list-blank', cat:'lists', name:'Any list', desc:'Write your own title and list', s:[
    {t:'lines', label:'List title', n:1},
    {t:'checklist', label:'', n:16, add:true} ]},
+ { id:'list-notes', cat:'lists', name:'Notes', desc:'Lined pages for jotting things down', s:[
+   {t:'lines', label:'', n:20, add:true} ]},
+ { id:'list-blankpage', cat:'lists', name:'Blank page', desc:'Nothing but space for notes or drawing', s:[
+   {t:'space', label:'', h:1150, add:true} ]},
+ { id:'list-dotted', cat:'lists', name:'Dotted page', desc:'A dot grid for notes, sketches or plans', s:[
+   {t:'space', label:'', h:1150, dots:true, add:true} ]},
 
  // APPOINTMENTS
  { id:'appt-one', cat:'appointments', name:'Appointment', desc:'What, when, where, what to bring and what to ask', s:[
@@ -899,6 +930,13 @@ const TEMPLATES = [
    {t:'checklist', label:'School bits to remember', n:4, add:true},
    {t:'lines', label:'Notes', n:2} ]}
 ];
+// translate the built-in templates, prompts and tab names once at start
+if (SR){
+  const deep = v => typeof v === 'string' ? T(v) : Array.isArray(v) ? v.map(deep) : (v && typeof v === 'object') ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, ['t','id','cat','src','kind','type'].includes(k) ? x : deep(x)])) : v;
+  TEMPLATES.forEach(t => { t.name = T(t.name); t.desc = T(t.desc); t.s = deep(t.s); });
+  Object.keys(PROMPTS).forEach(k => { PROMPTS[k] = PROMPTS[k].map(T); });
+  Object.values(CATS).forEach(c => { c.title = T(c.title); });
+}
 const TPL = Object.fromEntries(TEMPLATES.map(t => [t.id, t]));
 const DEFAULT_TPL = { affirmation:'aff-daily', gratitude:'grat-three', diary:'diary-lined', lists:'list-todo', appointments:'appt-one' };
 const tplFor = (id, cat) => TPL[id] || TPL[DEFAULT_TPL[cat] || 'diary-lined'];
@@ -947,7 +985,7 @@ function wrap(ctx, text, maxW){ const words = text.split(' '); const out = []; l
 function header(ctx, tpl, cat, k, title){
   roundRect(ctx, 40, 40, 920, 130, 28); ctx.fillStyle = headBg(cat); ctx.fill();
   ctx.fillStyle = headInk(cat); ctx.font = '800 20px Nunito, sans-serif';
-  ctx.fillText((k ? cat.icon + '  ' + cat.title : '✓  My lists').toUpperCase(), 80, 86);
+  ctx.fillText((k ? cat.icon + '  ' + cat.title : T('✓  My lists')).toUpperCase(), 80, 86);
   const big = (!k && title) ? title : tpl.name;
   const room = k ? 540 : 600;
   let fs = 46; ctx.font = `700 ${fs}px Fraunces, serif`;
@@ -1053,7 +1091,7 @@ const SECTIONS = {
     return ly + 40;
   },
   pick(ctx, y, s, cat){
-    y = label(ctx, y, s.label + '  (circle one)', cc(cat));
+    y = label(ctx, y, s.label + T('  (circle one)'), cc(cat));
     const m = s.options.length, sp = 860 / m; const shortOpts = s.options.every(o => o.length <= 2);
     s.options.forEach((o, j) => {
       const cx = X0 + sp*(j + .5), cy = y + 46;
@@ -1067,8 +1105,8 @@ const SECTIONS = {
     return y + (shortOpts ? 110 : 130);
   },
   mood(ctx, y, s, cat){
-    y = label(ctx, y, 'How I feel right now  (circle one)', cc(cat));
-    const names = ['Low','Meh','Okay','Good','Great'], curves = [-14,-6,0,8,16];
+    y = label(ctx, y, T('How I feel right now') + T('  (circle one)'), cc(cat));
+    const names = ['Low','Meh','Okay','Good','Great'].map(T), curves = [-14,-6,0,8,16];
     for (let i = 0; i < 5; i++){
       const cx = 160 + i*170, cy = y + 60, r = 40; PICKREC.push({ sid: DSID, j: i, cx, cy, r });
       ctx.strokeStyle = PT().box; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(cx, cy, r, 0, Math.PI*2); ctx.stroke();
@@ -1096,8 +1134,8 @@ const SECTIONS = {
     y = label(ctx, y, s.label, cc(cat));
     const n = s.n + ex; const bx = d => 556 + d*54;
     ctx.fillStyle = PT().muted; ctx.font = '800 20px Nunito, sans-serif'; ctx.textAlign = 'center';
-    ['M','T','W','T','F','S','S'].forEach((l, d) => ctx.fillText(l, bx(d) + 19, y + 34));
-    ctx.textAlign = 'left'; ctx.fillStyle = PT().muted; ctx.font = 'italic 500 24px Fraunces, serif'; ctx.fillText('Habit', X0, y + 34);
+    (SR ? ['P','U','S','Č','P','S','N'] : ['M','T','W','T','F','S','S']).forEach((l, d) => ctx.fillText(l, bx(d) + 19, y + 34));
+    ctx.textAlign = 'left'; ctx.fillStyle = PT().muted; ctx.font = 'italic 500 24px Fraunces, serif'; ctx.fillText(T('Habit'), X0, y + 34);
     let ly = y;
     for (let r = 0; r < n; r++){
       ly = y + 50 + (r + 1)*LH;
@@ -1693,6 +1731,37 @@ function renderPeriodRow(){
   $('periodRow').querySelectorAll('.pp').forEach(b => b.onclick = () => { lsSet('dl-period', b.dataset.v === '1'); renderPeriodRow(); renderCal(); });
 }
 
+function renderLangRow(){
+  $('langRow').innerHTML = `<button class="pp${LANG === 'en' ? ' on' : ''} notr" data-v="en">English</button><button class="pp${LANG === 'sr' ? ' on' : ''} notr" data-v="sr">Srpski (latinica)</button>`;
+  $('langRow').querySelectorAll('.pp').forEach(b => b.onclick = () => { if (b.dataset.v === LANG) return; lsSet('dl-lang', b.dataset.v); location.reload(); });
+}
+
+/* ---------------- screen translation ---------------- */
+// Swaps the English words on screen for Serbian ones. Anything the user typed stays as it is.
+const TR_ATTRS = ['placeholder', 'title', 'aria-label'];
+function trNode(n){
+  if (!SR) return;
+  if (n.nodeType === 3){
+    const p = n.parentNode; if (!p || p.closest && p.closest('script,style,textarea,.notr,[contenteditable]')) return;
+    const v = n.nodeValue; if (!v || !/[A-Za-z]/.test(v)) return;
+    const t = T(v); if (t !== v) n.nodeValue = t;
+    return;
+  }
+  if (n.nodeType !== 1 || n.matches('script,style,.notr')) return;
+  for (const a of TR_ATTRS){ if (n.hasAttribute(a)){ const v = n.getAttribute(a), t = T(v); if (t !== v) n.setAttribute(a, t); } }
+  if (n.tagName !== 'TEXTAREA') for (const c of n.childNodes) trNode(c);
+}
+function startTranslating(){
+  if (!SR) return;
+  trNode(document.body);
+  new MutationObserver(list => { for (const m of list){
+    if (m.type === 'characterData') trNode(m.target);
+    else if (m.type === 'attributes') trNode(m.target);
+    else m.addedNodes.forEach(trNode);
+  } }).observe(document.body, { childList: true, subtree: true, characterData: true, attributes: true, attributeFilter: TR_ATTRS });
+  const tt = document.title; document.title = T(tt);
+}
+
 /* ---------------- look settings ---------------- */
 function applyTheme(){
   const dark = isDarkMode();
@@ -1956,25 +2025,25 @@ function myTemplates(cat){
   return Object.entries(Store.index).filter(([k, m]) => k.startsWith('T_') && m.custom && (!cat || m.custom.cat === cat)).map(([k, m]) => TPL[m.tpl] || m.custom).sort((a, b) => a.name.localeCompare(b.name));
 }
 const SECTION_KINDS = [
-  ['❓ Question',      () => ({ t:'lines', label:'Your question here?', n:2, add:true })],
+  ['❓ Question',      () => ({ t:'lines', label:T('Your question here?'), n:2, add:true })],
   ['☰ Lines',         () => ({ t:'lines', label:'', n:6, add:true })],
-  ['1. Numbered list', () => ({ t:'numbered', label:'Numbered list', n:3, per:1, add:true })],
-  ['☑ Tick boxes',    () => ({ t:'checklist', label:'To do', n:6, cols:1, add:true })],
-  ['◫ Two columns',   () => ({ t:'twocol', left:'Left', right:'Right', n:6, add:true })],
-  ['▦ Table',         () => ({ t:'table', label:'Table', cols:['Column 1','Column 2','Column 3'], n:5, add:true })],
-  ['◉ Choice buttons', () => ({ t:'pick', label:'Pick one', options:['1','2','3','4','5'] })],
+  ['1. Numbered list', () => ({ t:'numbered', label:T('Numbered list'), n:3, per:1, add:true })],
+  ['☑ Tick boxes',    () => ({ t:'checklist', label:T('To do'), n:6, cols:1, add:true })],
+  ['◫ Two columns',   () => ({ t:'twocol', left:T('Left'), right:T('Right'), n:6, add:true })],
+  ['▦ Table',         () => ({ t:'table', label:T('Table'), cols:['Column 1','Column 2','Column 3'].map(T), n:5, add:true })],
+  ['◉ Choice buttons', () => ({ t:'pick', label:T('Pick one'), options:['1','2','3','4','5'] })],
   ['☺ Mood faces',    () => ({ t:'mood' })],
-  ['▤ Habit tracker',  () => ({ t:'habit', label:'Tick a box each day', n:5, add:true })],
+  ['▤ Habit tracker',  () => ({ t:'habit', label:T('Tick a box each day'), n:5, add:true })],
   ['▢ Free space',    () => ({ t:'space', label:'', h:500, add:true })],
   ['⁘ Dotted space',  () => ({ t:'space', label:'', h:500, dots:true, add:true })],
-  ['❝ Daily prompt',  () => ({ t:'quote', small:"Today's prompt", src:'grat' })],
-  ['✎ Note',          () => ({ t:'note', text:'A little reminder to myself' })]
+  ['❝ Daily prompt',  () => ({ t:'quote', small:T("Today's prompt"), src:'grat' })],
+  ['✎ Note',          () => ({ t:'note', text:T('A little reminder to myself') })]
 ];
 const KIND_NAME = { lines:'Lines', numbered:'Numbered list', checklist:'Tick boxes', twocol:'Two columns', table:'Table', pick:'Choice buttons', mood:'Mood faces', habit:'Habit tracker', space:'Space', quote:'Daily prompt', note:'Note' };
 let bd = null, bdFrom = null;
 function openBuilder(t, cat){
   bdFrom = t ? t.id : null;
-  bd = t ? JSON.parse(JSON.stringify(t)) : { id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cat: cat || 'lists', name: '', desc: '', mine: true, custom: true, s: [ { t:'lines', label:'Your question here?', n:2, add:true }, { t:'checklist', label:'To do', n:5, cols:1, add:true } ] };
+  bd = t ? JSON.parse(JSON.stringify(t)) : { id: 'u_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), cat: cat || 'lists', name: '', desc: '', mine: true, custom: true, s: [ { t:'lines', label:T('Your question here?'), n:2, add:true }, { t:'checklist', label:T('To do'), n:5, cols:1, add:true } ] };
   $('bdTitle').textContent = t ? 'Edit your template' : 'Make your own template';
   $('bdName').value = bd.name; $('bdDesc').value = bd.desc && bd.desc !== 'Made by you' ? bd.desc : '';
   $('bdDelete').style.display = t ? 'inline-flex' : 'none';
@@ -2025,7 +2094,7 @@ function renderBdSecs(){
     switch (sec.t){
       case 'lines': { fText(box, sec, 'label', 'Heading or question', 'e.g. What am I looking forward to?'); fText(box, sec, 'prefix', 'Start each line with (optional)', 'e.g. I am'); const r = row(); fStep(r, sec, 'n', 'Lines', 1, 30); fCheck(r, sec, 'add', 'Show a + button'); break; }
       case 'numbered': { fText(box, sec, 'label', 'Heading', ''); const r = row(); fStep(r, sec, 'n', 'Items', 1, 20); fStep(r, sec, 'per', 'Lines each', 1, 4); fCheck(r, sec, 'add', 'Show a + button'); break; }
-      case 'checklist': { fText(box, sec, 'label', 'Heading', 'e.g. Shopping'); fLines(box, sec, 'items', 'Ready-made items, one per line (optional)', 'Milk\nBread\nEggs'); const r = row(); fStep(r, sec, 'n', 'Rows', 1, 40); fChoose(r, sec, 'cols', 'Columns', [[1,'One'],[2,'Two']]); fCheck(r, sec, 'add', 'Show a + button'); break; }
+      case 'checklist': { fText(box, sec, 'label', 'Heading', 'e.g. Shopping'); fLines(box, sec, 'items', 'Ready-made items, one per line (optional)', T(T('Milk\nBread\nEggs'))); const r = row(); fStep(r, sec, 'n', 'Rows', 1, 40); fChoose(r, sec, 'cols', 'Columns', [[1,'One'],[2,'Two']]); fCheck(r, sec, 'add', 'Show a + button'); break; }
       case 'twocol': { fText(box, sec, 'left', 'Left heading', 'e.g. Pros'); fText(box, sec, 'right', 'Right heading', 'e.g. Cons'); const r = row(); fStep(r, sec, 'n', 'Rows', 1, 30); fCheck(r, sec, 'add', 'Show a + button'); break; }
       case 'table': { fText(box, sec, 'label', 'Heading', ''); fList(box, sec, 'cols', 'Column headings, split with commas (2 to 5)', 'Item, Qty, Price'); const r = row(); fStep(r, sec, 'n', 'Rows', 1, 30); fCheck(r, sec, 'add', 'Show a + button'); break; }
       case 'pick': { fText(box, sec, 'label', 'Heading', 'e.g. Energy'); fList(box, sec, 'options', 'Choices, split with commas', 'Low, Okay, Good, Great'); break; }
@@ -2039,7 +2108,7 @@ function renderBdSecs(){
   });
 }
 function bdPreview(){
-  bd.name = $('bdName').value.trim() || 'My template';
+  bd.name = $('bdName').value.trim() || T('My template');
   const c = $('bdPrev'); const w = (c.parentElement.clientWidth || 360) - 20; const dpr = window.devicePixelRatio || 1;
   const m = measure(bd, keyOf(new Date()), {}); const sc = w / W;
   c.width = Math.round(w * dpr); c.height = Math.round(m.H * sc * dpr); c.style.height = (m.H * sc) + 'px';
@@ -2060,6 +2129,7 @@ $('bdSave').onclick = async () => {
   Sync.changed('T_' + def.id);
   $('builderView').classList.remove('on');
   toast(bdFrom ? 'Template updated' : 'Template saved', false);
+  if ($('lists').classList.contains('on') && $('newListBox').style.display !== 'none'){ $('newList').click(); return; }
   if ($('day').classList.contains('on') && !cur.folderId){
     if (cur.cat !== def.cat) await openCat(def.cat);
     if ($('chooser').classList.contains('on')) showChooser(cur.cat, cur.n, replacing);
@@ -2088,7 +2158,7 @@ async function renderLists(){
   $('listHome').style.display = 'block'; $('newListBox').style.display = 'none';
   const g = $('listGrid'); g.innerHTML = '';
   const items = Object.entries(Store.index).filter(([k]) => k.startsWith('L_')).sort((a, b) => (b[1].updated || 0) - (a[1].updated || 0));
-  if (!items.length){ g.innerHTML = '<div class="empty">No lists yet. Tap <b>+ New list</b> to make your first one.</div>'; return; }
+  if (!items.length){ g.innerHTML = SR ? '<div class="empty">Još nema lista. Dodirni <b>+ Nova lista</b> ili <b>✎ Nova beleška</b> da napraviš prvu.</div>' : '<div class="empty">No lists yet. Tap <b>+ New list</b> or <b>✎ New note</b> to make your first one.</div>'; return; }
   for (const [k, m] of items){
     const t = tplFor(m.tpl, 'lists');
     const b = document.createElement('button'); b.className = 'tcard lcard';
@@ -2114,7 +2184,24 @@ async function renderLists(){
 $('newList').onclick = () => {
   $('listHome').style.display = 'none'; $('newListBox').style.display = 'block'; $('newListName').value = '';
   const g = $('newListGrid'); g.innerHTML = '';
-  [...myTemplates('lists'), ...TEMPLATES.filter(t => t.cat === 'lists')].forEach(t => g.appendChild(tplCard(t, createFolderList)));
+  const make = el('button', 'tcard makeCard', `<div class="mk-plus">+</div><b>Make your own</b><span>Build a list template with the sections you want</span>`);
+  make.onclick = () => openBuilder(null, 'lists');
+  g.appendChild(make);
+  for (const t of myTemplates('lists')){
+    const b = tplCard(t, createFolderList); b.classList.add('mine');
+    const ed = el('span', 'edit', '✎ Edit'); ed.onclick = e => { e.stopPropagation(); openBuilder(t); };
+    b.style.position = 'relative'; b.appendChild(ed); g.appendChild(b);
+  }
+  TEMPLATES.filter(t => t.cat === 'lists').forEach(t => g.appendChild(tplCard(t, createFolderList)));
+};
+// a quick note: a lined Notes page in My lists, ready to write on
+$('newNote').onclick = async () => {
+  $('newListName').value = '';
+  const d = new Date();
+  const id = Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  await Store.putLocal('L_' + id, { strokes: [], updated: Date.now(), tpl: 'list-notes', extra: {}, name: T('Note') + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()].slice(0, 3) });
+  Sync.changed('L_' + id);
+  await openFolderList(id);
 };
 $('newListCancel').onclick = () => renderLists();
 async function createFolderList(t){
@@ -3079,7 +3166,7 @@ window.snezzyBack = () => {
 try { navigator.storage && navigator.storage.persist && navigator.storage.persist(); } catch(e){}
 
 /* ---------------- your name at the top ---------------- */
-const diaryTitle = n => { n = (n || '').trim(); if (!n) return 'My Diary'; return n + (/s$/i.test(n) ? "' Diary" : "'s Diary"); };
+const diaryTitle = n => { n = (n || '').trim(); if (!n) return T('My Diary'); if (SR) return 'Dnevnik – ' + n; return n + (/s$/i.test(n) ? "' Diary" : "'s Diary"); };
 function applyName(){ const t = diaryTitle(lsGet('dl-name', '')); $('brandName').textContent = t; document.title = t; }
 function askName(first){
   $('wTitle').textContent = first ? 'Welcome to your diary' : 'Change your name';
@@ -3094,8 +3181,54 @@ $('wSkip').onclick = () => { lsSet('dl-name-asked', true); $('welcome').classLis
 $('wName').addEventListener('keydown', e => { if (e.key === 'Enter') $('wGo').click(); });
 $('brand').onclick = () => askName(false);
 applyName();
-renderModeRow(); renderPeriodRow(); renderLookRows(); applyTheme(); renderScribRow();
+renderModeRow(); renderPeriodRow(); renderLookRows(); applyTheme(); renderScribRow(); renderLangRow(); startTranslating();
 if (!lsGet('dl-name-asked', false)) askName(true);
+
+/* ---------------- dictation ----------------
+   Tap where the words should go (a line, a text box or a typing box), then press 🎤 and speak.
+   On Android this uses the phone's own voice typing. */
+let lastField = null, dictTarget = null;
+document.addEventListener('focusin', e => { const t = e.target; if (t && (t.tagName === 'TEXTAREA' || (t.tagName === 'INPUT' && /^(text|search|email)?$/.test(t.type || ''))) && !t.closest('.modal')) lastField = t; });
+const CYR = {'а':'a','б':'b','в':'v','г':'g','д':'d','ђ':'đ','е':'e','ж':'ž','з':'z','и':'i','ј':'j','к':'k','л':'l','љ':'lj','м':'m','н':'n','њ':'nj','о':'o','п':'p','р':'r','с':'s','т':'t','ћ':'ć','у':'u','ф':'f','х':'h','ц':'c','ч':'č','џ':'dž','ш':'š'};
+const toLatin = t => t.replace(/[\u0400-\u04FF]/g, ch => { const lo = ch.toLowerCase(), l = CYR[lo]; if (l === undefined) return ch; return ch === lo ? l : (l.length > 1 ? l[0].toUpperCase() + l.slice(1) : l.toUpperCase()); });
+function micPress(){
+  const f = lastField && document.body.contains(lastField) ? lastField : null;
+  if (!f){ toast(SR ? 'Prvo dodirni mesto gde reči treba da idu (red ili polje), pa pritisni 🎤' : 'First tap where the words should go (a line or a box), then press 🎤'); return; }
+  dictTarget = { el: f, start: f.selectionStart ?? f.value.length, end: f.selectionEnd ?? f.value.length, ed: (typeof textEd !== 'undefined' && textEd && textEd.el === f) ? { slot: textEd.slot, box: textEd.box } : null };
+  const A = window.SnezzyAndroid;
+  if (A && A.startDictation){ A.startDictation(SR ? 'sr' : 'en'); return; }
+  const SRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SRec){ dictTarget = null; toast(SR ? 'Diktiranje ne radi na ovom uređaju' : 'Dictation is not available on this device'); return; }
+  const r = new SRec(); r.lang = SR ? 'sr-RS' : 'en-IE'; r.interimResults = false;
+  r.onresult = e => window.snezzyDictated(e.results[0][0].transcript);
+  r.onerror = () => window.snezzyDictated(null);
+  try { r.start(); toast(SR ? 'Slušam… govori sada' : 'Listening… speak now'); } catch(e) { window.snezzyDictated(null); }
+}
+window.snezzyDictated = words => {
+  const d = dictTarget; dictTarget = null;
+  if (!d) return;
+  if (words == null){ toast(SR ? 'Diktiranje nije moglo da počne' : 'Dictation could not start'); return; }
+  words = String(words).trim(); if (!words) return;
+  if (SR) words = toLatin(words);
+  const join = (before, after) => { const pre = before && !/\s$/.test(before) ? ' ' : ''; const post = after && !/^\s/.test(after) ? ' ' : ''; return before + pre + words + post + after; };
+  const f = d.el;
+  if (document.body.contains(f)){
+    const v = f.value; f.value = join(v.slice(0, d.start), v.slice(d.end));
+    f.dispatchEvent(new Event('input', { bubbles: true }));
+    try { f.focus(); const pos = f.value.length - (v.length - d.end); f.setSelectionRange(pos, pos); } catch(e) {}
+    return;
+  }
+  // the on-page editor closed while the voice screen was open, so put the words straight into the page
+  if (d.ed && cur && cur.data){
+    if (d.ed.slot != null){ const old = cur.data.text[d.ed.slot] || ''; cur.data.text[d.ed.slot] = join(old.slice(0, d.start), old.slice(d.end)); dirty = true; render(); editSlot(d.ed.slot); }
+    else if (d.ed.box != null){ const b = cur.data.boxes.find(x => x.id === d.ed.box); if (b){ const old = b.t || ''; b.t = join(old.slice(0, d.start), old.slice(d.end)); dirty = true; render(); editBox(b.id); } }
+  }
+};
+document.querySelectorAll('.micBtn').forEach(b => {
+  b.addEventListener('pointerdown', e => e.preventDefault());   // keep the cursor where it is
+  b.addEventListener('mousedown', e => e.preventDefault());
+  b.onclick = e => { e.stopPropagation(); micPress(); };
+});
 
 /* ---------------- start ---------------- */
 (async () => {

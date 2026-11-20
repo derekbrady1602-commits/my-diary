@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2
+
+- Language setting with English and Srpski (latinica). Menus, templates, daily prompts, dates and the period tracker are all translated
+- Dictation with the 🎤 button on the toolbar, the typing view and the side tools. It uses the phone's own voice typing in English or Serbian
+- My lists has **✎ New note** for quick notes and **Make your own** for your own list templates
+- New list styles Notes, Blank page and Dotted page in My lists
+
 ## v1.1
 
 - Full screen now really fills the screen when you scroll down a page: every bar hides, including the toolbar, and a small set of pen tools sits on the side
